@@ -1,0 +1,255 @@
+<script>
+//var goods=null;
+function  tijiao(){
+     page =$("#tiao").val();
+   location.href='/home/shopmanage?cpage='+page+'&tagflag=1';
+}
+
+function delGoods(id){
+    if(confirm("确定删除吗？")){
+        location.href='/home/delGoods?id='+id;
+    }
+  }
+
+
+function updGoods(goodsid){
+
+   $.post("/home/goodsById",{
+            id:goodsid,
+            type:"upd"
+
+        },
+        function(data,status){
+          
+          goodsForm.goodsname.value=data.goodsname;
+       document.getElementById('goodsImgShow').src=data.goodsimg;
+
+
+//动态添加img
+//            var box = document.getElementById("box");
+//            // var liNodes = document.getElementsByTagName("img");
+//            // alert(liNodes.length);
+//            for (var i=0;i<box.childNodes.length;i++){
+//           var childNode = box.childNodes[0]; //总是删除第一个，是不是更简单
+//             box.removeChild(childNode);
+// } 
+
+//            var img = document.createElement("img");
+//              //创建一个li标签
+//           img.src=data.goodsimg;  //给li标签赋值
+//           box.appendChild(img);  //将创建好的li标签追加到box标签中
+         //select
+          goodsForm.typeid.value=data.typeid;
+
+          goodsForm.price.value=data.price;
+          //alert(data.goodsintro);
+         // alert(goodsid);
+       
+          UE.getEditor('editor').setContent(data.goodsintro);
+
+             $("#goods").val(goodsid);
+            goodsForm.action='./updgoods';
+            goodsForm.but.value="修改"
+            $('#goodsForm').show();
+        });
+
+  
+}
+
+function addNewGoods(){
+   goodsForm.reset();
+    document.getElementById('goodsImgShow').src="";
+   UE.getEditor('editor').setContent('');
+   goodsForm.action='./pubgoods';
+   goodsForm.but.value="创建新商品"
+  $('#goodsForm').show();
+}
+
+
+function hideGoodsForm(){
+  $('#goodsForm').hide();
+}
+function onSub(){
+  // for(var key in $('#editor')){
+  //   document.write(key);
+  //   document.write('<br/>');
+  // }
+  //alert($('#editor').context);
+  //alert(goodsForm.editorValue.value);
+  return true;
+}
+
+function  lookGoodsById(id){
+   $.post("/home/goodsById",{
+            id:id,
+            type:"look"
+
+        },
+        function(data,status){
+       $('#mbody2').html(data);
+      $('#myModal2').modal('show');
+        });
+
+}
+function updImg2(thisa,imgId){
+  //alert(thisa.value);
+  goodsForm.imgg.value=thisa.value;//标志图片是否改变
+
+    if (typeof FileReader === 'undefined') {  
+        alert('你的浏览器不支持FileReader接口！');  
+        return;  
+    }
+    var file = thisa.files[0];//拿到上传文件
+    if(!/image\/\w+/.test(file.type)){  
+        alert("看清楚,这个需要图片！"); 
+        return false;
+    }
+    var reader = new FileReader();  
+    //将文件以Data URL形式读入页面  
+    reader.readAsDataURL(file);
+    reader.onload=function(e){  
+        //显示文件  
+      //  alert(this.result);
+        var img = document.getElementById(imgId);
+        img.src = this.result;
+    }
+}
+
+</script>
+
+<form id='goodsForm' name='goodsForm' style='display:none' method="post" action='./pubgoods' onsubmit="return onSub();" enctype="multipart/form-data">
+  <table class="table table-bordered">
+  <caption>商品信息&nbsp;
+  <button type="button" class="btn btn-success" onclick='hideGoodsForm()'>收起</button>
+  </caption>
+  <tbody>
+    <tr>
+      <td><input type="text" class="form-control" name="goodsname" placeholder="请输入商品名称"  ></td>
+    </tr>
+    <tr>
+      <td>请选择商品图片<input type="file" name="goodsimg"  onchange="updImg2(this,'goodsImgShow')">
+      <div id="box"> <img id='goodsImgShow' src='' style='float: right'/></div></td>
+    </tr>
+    <tr>
+      <td>
+        <select class="form-control" name='typeid'>
+        <option value='0'>请选择商品类别</option>
+          <option value='1'>重机</option>
+          <option value='2'>车辆</option>
+          <option value='3'>磨具</option>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <td><input type="number" class="form-control" name="price" placeholder="请输入价格" step='0.01'>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        商品介绍
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <% include ueditor %>
+        
+      </td>
+    </tr>
+    <tr>
+      <td align='center'>
+        <input type='hidden' name='shopid' value='<%-rs.id%>'/>
+        <input type='hidden' name='imgg' />
+        <input type='hidden' name='goods' id="goods" />
+        <input type="submit" class="btn btn-success"  value="创建新商品"   name="but"></button>&nbsp;
+        <button type="button" class="btn btn-success" onclick='hideGoodsForm()'>收起</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</form>
+<table class="table">
+    <caption>
+    <button type="button" class="btn btn-warning" onclick='addNewGoods()'>添加新商品</button>
+    </caption>
+    <thead>
+      <tr>
+        <th>图片</th>
+        <th>商品简介</th>
+        <th>好评度</th>
+        <th>
+        操作
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+   <tbody>
+        <% goodsRs.forEach(function(row){ %>
+          <tr>
+            <td>   <img src="<%-row.goodsimg%>" 
+                   id='imgId'   width="120px" height="120px"/></td>
+                    <td> <%-row.goodsname %>  </br> <a  href="#" onclick="lookGoodsById(<%-row.id%>)">查看详情</a> </td>
+                    <td> <%-row.praise %>  </td>
+                    <td><a  href="#" onclick="updGoods(<%-row.id%>)">修改</a>&nbsp;
+                     <a  href="#"    onclick="delGoods(<%-row.id%>)" >删除</a>   </td>
+
+          </tr>
+        <% }) %>
+
+
+         <tr>
+            <% cpage = parseInt(cpage); %>
+            <td colspan='4' align='center'>
+              共<%-rowCount%>条消息&nbsp;
+              第<%-cpage%>/<%-sumPage%>页&nbsp;
+              <%if(cpage>1){%>
+              <a href='./shopmanage?cpage=1&tagflag=1'>首页</a>&nbsp;
+              <a href='./shopmanage?cpage=<%-cpage-1%>&tagflag=1'>上一页</a>&nbsp;
+              <%}%>
+              <%if(cpage<sumPage){%>
+              <a href='./shopmanage?cpage=<%-cpage+1%>&tagflag=1'>下一页</a>&nbsp;
+              <a href='./shopmanage?cpage=<%-sumPage%>&tagflag=1'>尾页</a>&nbsp;
+              <%}%>
+
+              <% if (sumPage>5){  %>
+                            
+            <% for(i=1;i<=sumPage;i++){ %>
+               <%  if(i==1||i==2||i==sumPage-1||i==sumPage)  {%>
+                <a href='./shopmanage?cpage=<%-i%>&tagflag=1'><%-i%></a>&nbsp;
+              <% }else { %>
+              .
+              <% } %>
+                         <% } %> <!-- end  of  for -->
+                 &nbsp;    跳转到:<input type="text" name="tiao" id="tiao" size="6px">
+                     <button  type="button" onclick="tijiao()" >跳转</button>
+
+
+              <% }else { %>
+
+              <% for(i=1;i<=sumPage;i++){ %>
+                <a href='./shopmanage?cpage=<%-i%>&tagflag=1'><%-i%></a>&nbsp;
+              <% } %>
+                <% } %>
+            </td>
+          </tr>
+        </tbody>
+
+   
+    </tbody>
+  </table>
+<!--模态框 -->
+<div class="modal fade" id="myModal2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">商品详细信息</h4>
+            </div>
+            <div id='mbody2' class="modal-body">
+                    
+            </div>
+            <div class="modal-footer" style='clear:left'>
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>

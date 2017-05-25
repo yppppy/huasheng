@@ -1,0 +1,225 @@
+
+<% include ../head %>
+
+<style>
+	#myform input{
+		margin-top:6px;
+	}
+	#myform textarea{
+		margin-top:6px;
+	}
+	#myform label{
+		margin-top:6px;
+	}
+	#myform select{
+		margin-top:6px;
+	}
+</style>
+
+<script>
+	function delMsg(id){
+		if(confirm("确定删除吗？")){
+			  location.href='/msg/delMsg?id='+id;
+		}
+	}
+
+
+function  tijiao(){
+     page =$("#tiao").val();
+   location.href='/home/?cpage='+page;
+}
+
+
+	function renzheng(){
+		$('#main').load('/home/renzheng.html');
+	}
+
+	function reply(thisa){
+		// nicheng=thisa.parentElement.parentElement.children[0].innerText;
+  //    $("#nicheng2").html(nicheng);
+  //    $("#sendid").val(sendid);
+  //    $('#myModal').modal('show');
+  //    $("#sendNewForm").hide();
+  //    $("#replyForm").show();
+  reNicheng = thisa.parentElement.parentElement.children[0].innerText;
+		titlelabel = '回复:'+reNicheng;
+		sendNewForm.nicheng.value=reNicheng+';';
+		$('#myModalLabel').text(titlelabel);
+        $('#myModal').modal('show');
+	}
+	
+	function  newMsg(){
+		sendNewForm.reset();
+		  // $("#sendNewForm").show();
+    //      $("#replyForm").hide();
+      titlelable="发送新消息";
+    $('#myModalLabel').text(titlelable);
+    $('#myModal').modal('show');
+	}
+</script>
+<div class="row">
+	      <div class="col-sm-1"></div>
+	      <div class="col-sm-2"  style='background-color: #aaa ;border: 1px ; border-radius: 20px'>
+	      	<% include ./left %>
+	      </div>
+	      <div class="col-sm-7" id='main'>
+	      	<table class="table table-bordered">
+			  <caption>
+			  		消息列表
+			  		<button type="button" class="btn btn-primary"  style='float:right'  onclick="newMsg()">新消息</button>
+			  </caption>
+			  <thead>
+			    <tr>
+			      <th>发送者</th>
+			      <th>内容</th>
+			      <th>发送时间</th>
+			      <th>操作</th>
+			    </tr>
+			  </thead>
+			  <tbody>
+			  	<% rs.forEach(function(row){ %>
+			    <tr>
+			      <td><%-row.nicheng%></td>
+			      <td><%-row.message%></td>
+			      <td>
+			      	<%
+			      	time = row.createtime;
+			      	%>
+			      <%-time.getFullYear()%>年
+			      <%-time.getMonth()+1%>月
+			      <%-time.getDate()%>日
+			      </td>
+			      <td>
+			      	<!-- <a href="#"   onclick="reply(this,<%-row.sendid%>)">回复</a>&nbsp; -->
+			      	<a href="#"   onclick="reply(this)">回复</a>&nbsp;
+			      	<a href="#"   onclick="delMsg(<%-row.id%>)">删除</a>
+			      </td>
+			    </tr>
+			    <% }) %>
+			    <tr>
+			    	<% cpage = parseInt(cpage); %>
+			    	<td colspan='4' align='center'>
+			    		共<%-rowCount%>条消息&nbsp;
+			    		第<%-cpage%>/<%-sumPage%>页&nbsp;
+			    		<%if(cpage>1){%>
+			    		<a href='./?cpage=1'>首页</a>&nbsp;
+			    		<a href='./?cpage=<%-cpage-1%>'>上一页</a>&nbsp;
+			    		<%}%>
+			    		<%if(cpage<sumPage){%>
+			    		<a href='./?cpage=<%-cpage+1%>'>下一页</a>&nbsp;
+			    		<a href='./?cpage=<%-sumPage%>'>尾页</a>&nbsp;
+			    		<%}%>
+
+			    		<% if (sumPage>5){  %>
+                            
+            <% for(i=1;i<=sumPage;i++){ %>
+               <%  if(i==1||i==2||i==sumPage-1||i==sumPage)  {%>
+			    			<a href='./?cpage=<%-i%>'><%-i%></a>&nbsp;
+			    		<% }else { %>
+			    		.
+			    		<% } %>
+                         <% } %> <!-- end  of  for -->
+                 &nbsp;    跳转到:<input type="text" name="tiao" id="tiao" size="6px">
+                     <button  type="button" onclick="tijiao()" >跳转</button>
+
+
+			    		<% }else { %>
+
+			    		<% for(i=1;i<=sumPage;i++){ %>
+			    			<a href='./?cpage=<%-i%>'><%-i%></a>&nbsp;
+			    		<% } %>
+			    			<% } %>
+			    	</td>
+			    </tr>
+			  </tbody>
+			</table>
+
+	      </div>
+	      <div class="col-sm-1"></div>
+	      <script>
+	      	function sendMsg(){
+	      		$.post('/msg/sendmsg',$('#sendNewForm').serialize(),function(rehtml){
+	      		 alert('['+rehtml+']发送成功');
+	      		//alert(rehtml);
+	      		//alert(rehtml.split(";"));
+// 	      		data=rehtml.split(";");
+// 	      		for(i=0;i<data[0].length;i++){
+
+// 	      		}
+// 	      		for(ii=0;ii<data[1].length;ii++){
+	      			
+// 	      		}
+// //闭包
+// function  save(i){
+// 	return   function
+// }
+	      		// 	if(rehtml==1){
+	      		// 		alert('发送成功');
+	      		// 		$('#myModal').modal('hide');
+	      		// 	}else{
+	      		// 		alert('发送失败');
+	      		// 	}
+	      		 });
+	      		return false;
+	      	}
+
+
+	      	
+	      	function onReply(){
+	      		$.post('/msg/reply',$('#replyForm').serialize(),function(rehtml){
+	      			if(rehtml==1){
+	      				alert('回复成功');
+	      				$('#myModal').modal('hide');
+	      			}else{
+	      				alert('发送失败');
+	      			}
+	      		});
+	      		return false;
+	      	}
+	      </script>
+	      <!-- 模态框 -->
+			<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+			    <div class="modal-dialog">
+			    <form id='sendNewForm' name='sendNewForm' onsubmit="return sendMsg();">
+			        <div class="modal-content">
+			            <div class="modal-header">
+			                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+			                <h4 class="modal-title" id="myModalLabel">发送新消息</h4>
+			            </div>
+			            <div class="modal-body">
+			              <div class="form-group">
+						    <input type="text" class="form-control" name="nicheng" placeholder="请填写收件人昵称,多人请用英文分号(;)分割"><br/>
+    						<textarea name='message' class="form-control" rows="6" placeholder="请输入消息内容"></textarea>
+						  </div>
+			            </div>
+			            <div class="modal-footer" style='text-align: center'>
+			            	<button type="submit" class="btn btn-primary">发送</button>
+			                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+			            </div>
+			        </div>
+			       </form>
+
+			       <form id='replyForm' name='replyForm' onsubmit="return onReply();  " style="display: none;">
+			        <div class="modal-content">
+			            <div class="modal-header">
+			                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+			                <h4 class="modal-title" id="myModalLabel">回复<span id="nicheng2" name="nicheng2"></span></h4>
+			            </div>
+			            <div class="modal-body">
+			              <div class="form-group">
+						   
+    						<textarea name='message' class="form-control" rows="6" placeholder="请输入消息内容"></textarea>
+    						  <input type="hidden" name="sendid" id="sendid">
+						  </div>
+			            </div>
+			            <div class="modal-footer" style='text-align: center'>
+			            	<button type="submit" class="btn btn-primary">发送</button>
+			                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+			            </div>
+			        </div>
+			       </form>
+			    </div>
+			</div>
+
+  </body>
+</html>

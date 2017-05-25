@@ -1,0 +1,196 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title></title>
+    <link rel="stylesheet" href="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/css/bootstrap.min.css">  
+    <link rel="stylesheet" href="http://cache.amap.com/lbs/static/main.css?v=1.0"/>
+    <script type="text/javascript"
+            src="http://webapi.amap.com/maps?v=1.3&key=ebb3310e602e7027987911af5e30be56"></script>
+   <script src="/javascripts/jquery-2.1.4.min.js"></script>
+   <script src="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/js/bootstrap.min.js">
+   	
+   </script>
+
+<script>
+
+function  lookGoodsById(id){
+   $.post("/home/goodsById",{
+            id:id,
+            type:"look"
+
+        },
+        function(data,status){
+       $('#mbody2').html(data);
+      $('#myModal2').modal('show');
+        });
+
+}
+
+
+ function  lookshopById(id){
+	alert("ttt");
+ $.get("/search/shopById?id="+id,
+        function(rs,status){
+        	alert(rs.shopintr);
+     
+				    //初始化地图对象，加载地图
+   
+ var marker = new AMap.Marker({
+						map: map,
+						position: [rs.lng  ,rs.lat],
+						title: ' rs.shopname',
+						icon: "http://webapi.amap.com/theme/v1.3/markers/n/mark_b.png",
+						offset: new AMap.Pixel(-10, -34)
+					});
+
+					
+					marker.setMap(map);
+					marker.setLabel({
+						offset: new AMap.Pixel(-10, -20),
+						content: ' rs.shopintr'
+					});
+
+					if(rs.liveflag==1){
+						marker.setIcon("http://localhost:3000/images/erro.png")
+                        marker.setLabel({
+						offset: new AMap.Pixel(-10, -20),
+						content: ' rs.stopreason'
+
+					   });
+                      
+					}
+					
+				}
+
+
+    //初始化地图对象，加载地图
+   
+ var map = new AMap.Map('mapContainer', {
+       
+		view: new AMap.View2D({
+			center: new AMap.LngLat(rs.lng, rs.lat),
+			zoom: 18
+		})
+    });
+
+AMap.plugin(['AMap.ToolBar','AMap.Scale','AMap.OverView'],
+				    function(){
+				        map.addControl(new AMap.ToolBar());
+
+				        map.addControl(new AMap.Scale());
+
+				        map.addControl(new AMap.OverView({isOpen:true}));
+				});
+
+}		
+
+</script>
+
+  
+
+
+  
+   
+   <style>
+   		.headStyle{
+   			 height: 2.5em;
+   			 margin-top:6px;
+   		}
+   </style>
+  </head>
+  <body>
+	    <div class="row">
+	      <div class="col-sm-1"></div>
+	      <div class="col-sm-2 headStyle" style='text-align: center;padding-top: 6px' >
+	      	<span class="glyphicon glyphicon-home" style='font-size:1.2em'>
+	      	华盛建材租赁平台
+	      	</span>
+	      </div>
+	      <div class="col-sm-6 headStyle">
+	      	<% include ../ui/search %>
+	      </div>
+	      	
+	      	<div class="col-sm-2 headStyle">
+	      	<button type="button" class="btn btn-default" data-toggle="modal" data-target="#myModal">登陆/注册</button>
+	  
+	      </div>
+	      <div class="col-sm-1">
+	      	
+	      </div>
+	    </div>
+
+
+<div class="row">
+	      <div class="col-sm-1"></div>
+	      <div class="col-sm-5" >
+	      	<table class="table">
+    <caption>
+    
+    </caption>
+    <thead>
+      <tr>
+        <th>图片</th>
+        <th>商品简介</th>
+        <th>好评度</th>
+        <th>
+        操作
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+   <tbody>
+        <% goodsResult.forEach(function(row){ %>
+          <tr>
+            <td>   <img src="<%-row.goodsimg%>" 
+                   id='imgId'   width="120px" height="120px"/></td>
+                    <td> <%-row.goodsname %>  </br>  </td>
+                    <td> <%-row.praise %>  </td>
+                    <td><a  href="#" onclick="lookGoodsById(<%-row.id%>)">查看详情</a>
+                    </br><a  href="#" onclick="lookshopById(<%-row.id%>)">到这去</a></td>
+                    
+
+          </tr>
+        <% }) %>
+
+
+			    </tbody>
+			</table>
+
+	      </div>
+	      <div class="col-sm-5" id='main'>
+	      	<div id="mapContainer" style="width: 100%;  height: 600px;margin-top:20px;margin-left: 20px; " >
+	      	
+	      </div>
+	      </div>
+	      <div class="col-sm-1"></div>
+	      
+</div>
+
+
+
+<!--模态框 -->
+<div class="modal fade" id="myModal2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">商品详细信息</h4>
+            </div>
+            <div id='mbody2' class="modal-body">
+                    
+            </div>
+            <div class="modal-footer" style='clear:left'>
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+
+
+
+  </body>
+</html>
+
+
+  
