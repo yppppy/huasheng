@@ -14,6 +14,8 @@ var home = require('./routes/home');
 var admin = require('./routes/admin');
 var msg = require('./routes/msg');
 var search = require('./routes/search');
+var pay = require('./routes/pay');
+
 
 var app = express();
 
@@ -57,7 +59,7 @@ app.use("/ueditor/ue", ueditor(path.join(__dirname, 'public'), function (req, re
     }  
 }));  
 
-var openPage = ['/','/users/zhuce','/users/login','/users/logout','/search/goods','/search/shop','/home/goodsById','/search/shopById'];
+var openPage = ['/','/users/zhuce','/users/login','/users/logout','/search/goods','/search/shop','/search/goodsById','/pay/putshopping'];
 app.use(function(req, res, next) {
 	var url = req.originalUrl;
   url = (url.split('?'))[0];
@@ -78,6 +80,7 @@ app.use('/home', home);
 app.use('/admin', admin);
 app.use('/msg', msg);
 app.use('/search', search);
+app.use('/pay',pay);
 // catch 404 and forward to error handler
 
 

@@ -362,9 +362,7 @@ router.post('/goodsById', function(req, res, next) {
   id=req.body.id;
  loginbean = req.session.loginbean;
 
-
- 
- GoodsModel.findOne({where:{id:id}}).then(function(goods){
+  GoodsModel.findOne({where:{id:id}}).then(function(goods){
   console.log(goods);
          if(req.body.type=="upd"){
          res.send(goods);

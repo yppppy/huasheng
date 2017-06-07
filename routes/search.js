@@ -27,30 +27,43 @@ console.log('访问goods');
 	        	res.send(err);
 	        	return;
 	        }
- len=result['matches'].length;
-	        flag=0;
-			var   goodsResult=[];
+
+  total = result.total;
+
+	        sql = 'select s.id as shopid,g.id as goodsid,s.shopname,s.lng,s.lat,g.goodsname,g.goodsimg,g.goodsintro,g.price,g.praise from goods g,shops s where g.id=? and g.shopid=s.id';
+	        rsGoods=[];
+	        ii=0;
   var exec=function(i){
  
   	return function(){
+  		sequelize.query(sql,{replacements: [goodsid],type: sequelize.QueryTypes.QUERY}).then(function(rs){
+				 	rsjson = JSON.parse(JSON.stringify(rs[0]));
+				 	rsGoods.push(rsjson[0]);
+				 	ii++;
+				 	if(ii>=total){
+				 		res.locals.loginbean = req.session.loginbean;
+
+				 		res.render('search/searchGoods',{rsGoods:rsGoods,keywords:keywords});
+				 	}
+				 })
   		
-		 	GoodsModel.findOne({where:{id:goodsid}}).then(function(rs){
-		 		console.log(rs);
-		    goodsResult.push(rs);
-		 			flag++;
-		 			if(flag==len){
-		 				console.log("------------------------------------------------");
-		 				console.log(goodsResult);
-		 				console.log("------------------------------------------------");
-		 			  res.render('search/searchGoods', {goodsResult:goodsResult});
-		 			}
-		 		})
+		 	// GoodsModel.findOne({where:{id:goodsid}}).then(function(rs){
+		 	// 	console.log(rs);
+		  //   goodsResult.push(rs);
+		 	// 		flag++;
+		 	// 		if(flag==len){
+		 	// 			console.log("------------------------------------------------");
+		 	// 			console.log(goodsResult);
+		 	// 			console.log("------------------------------------------------");
+		 	// 		  res.render('search/searchGoods', {goodsResult:goodsResult});
+		 	// 		}
+		 	// 	})
 		 
   	}
   }
 			
 
-	        console.log(result);
+	     
 	        
 	        for(var key in result['matches']){ //循环查出的id
 				console.log(key+':==='+result['matches'][key].id);
@@ -66,18 +79,16 @@ console.log('访问goods');
    });
 
 
-router.get('/shopById', function(req, res, next) {
+router.get('/goodsById', function(req, res, next) {
      
-  gid=req.query.id;
-sql = 'select s.* from shops s,goods g  where g.id=?  and s.id=g.shopid';
-  sequelize.query(sql,{replacements: [gid]}).then(function(rs){
-  	console.log("JJJJJJJJJJJJJJJJJJJJJJJ");
-  	rsjson = JSON.parse(JSON.stringify(rs[0]));
-      console.log(rsjson[0]);
-  	
-  res.send(rsjson[0]);
+  gid=req.query.goodsid;
+  
+GoodsModel.findOne({where:{id:gid}}).then(function(goods){
+  console.log(goods);
+  res.render('search/goodsinfo', {rs:goods});
 
- });
+  
+             });
    
 
 });
